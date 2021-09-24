@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daryl Haresign <github@daryl.haresign.com>
+Date: Thu, 23 Sep 2021 23:29:20 -0400
+Subject: bbg: Allow Usage of v8::TracedGlobal
+
+We use 'v8::TracedGlobal' for our wrappers.  As we don't yet have a
+multiplexing tracer, we simply report all 'v8::TracedGlobal' objects as
+being roots.
+
+diff --git a/third_party/blink/renderer/platform/heap/impl/thread_state.cc b/third_party/blink/renderer/platform/heap/impl/thread_state.cc
+index 101dc3072e34a04edec366636265c3c96cba82a2..21b115e58dfb31cd84d37a9035d152db8ebc51e9 100644
+--- a/third_party/blink/renderer/platform/heap/impl/thread_state.cc
++++ b/third_party/blink/renderer/platform/heap/impl/thread_state.cc
+@@ -260,8 +260,7 @@ class BlinkRootsHandler final : public v8::EmbedderRootsHandler {
+   }
+ 
+   bool IsRoot(const v8::TracedGlobal<v8::Value>& handle) final {
+-    CHECK(false) << "Blink does not use v8::TracedGlobal.";
+-    return false;
++    return true;
+   }
+ 
+   void ResetRoot(const v8::TracedReference<v8::Value>& handle) final {
+diff --git a/third_party/blink/renderer/platform/heap/v8_wrapper/thread_state.cc b/third_party/blink/renderer/platform/heap/v8_wrapper/thread_state.cc
+index 303c2839488c1082471031fd03c4577269998d94..cf64bd36eb50a3616ebe07ae63ed8f71a1766860 100644
+--- a/third_party/blink/renderer/platform/heap/v8_wrapper/thread_state.cc
++++ b/third_party/blink/renderer/platform/heap/v8_wrapper/thread_state.cc
+@@ -49,8 +49,7 @@ class BlinkRootsHandler final : public v8::EmbedderRootsHandler {
+   }
+ 
+   bool IsRoot(const v8::TracedGlobal<v8::Value>& handle) final {
+-    CHECK(false) << "Blink does not use v8::TracedGlobal.";
+-    return false;
++    return true;
+   }
+ 
+   // ResetRoot() clears references to V8 wrapper objects in all worlds. It is
